@@ -24,29 +24,56 @@ AbRArrow rightArrow = {abRArrowGetBounds, abRArrowCheck, 30};
 AbSpaceInvadey invadey = {abSpaceInvadeyGetBounds, abSpaceInvadeyCheck};
 AbSpaceInvadey invadey2 = {abSpaceInvadeyGetBounds, abSpaceInvadeyCheck};
 AbSpaceInvadey invadey3 = {abSpaceInvadeyGetBounds, abSpaceInvadeyCheck};
+AbSpaceInvadey invadey4 = {abSpaceInvadeyGetBounds, abSpaceInvadeyCheck};
+AbSpaceInvadey invadey5 = {abSpaceInvadeyGetBounds, abSpaceInvadeyCheck};
+AbSpaceInvadey invadey6 = {abSpaceInvadeyGetBounds, abSpaceInvadeyCheck};
+
 
 AbRectOutline fieldOutline = {/* playing field */
   abRectOutlineGetBounds, abRectOutlineCheck,
-  {screenWidth/2 - 15, screenHeight/2 - 15}
+  {screenWidth/2 - 20, screenHeight/2 - 15}
 };
 
 
-Layer layer5 = {
-  (AbShape *)&rightArrow,
+Layer layer8 = {
+  (AbShape *)&rect10,
   {(screenWidth/2)+10, (screenHeight/2)+5}, /**< bit below & right of center */
   {0,0}, {0,0},    /* last & next pos */
   COLOR_PINK,
   0
 };
 
+Layer layer7 = {/**< Layer with a red square */
+  (AbShape *)&invadey6,
+  {screenWidth/2+20, screenHeight/2+3}, /**< center */
+  {0,0}, {0,0},    /* last & next pos */
+  COLOR_BLACK,
+  &layer8,
+};
+
+Layer layer6 = {/**< Layer with a red square */
+  (AbShape *)&invadey5,
+  {screenWidth/2+10, screenHeight/2+30}, /**< center */
+  {0,0}, {0,0},    /* last & next pos */
+  COLOR_BLACK,
+  &layer7,
+};
+
+Layer layer5 = {/**< Layer with a red square */
+  (AbShape *)&invadey4,
+  {screenWidth/2+0, screenHeight/2+13}, /**< center */
+  {0,0}, {0,0},    /* last & next pos */
+  COLOR_BLACK,
+  &layer6,
+};
+
 Layer layer4 = {/**< Layer with a red square */
-  (AbShape *)&invadey,
-  {screenWidth/2, screenHeight/2}, /**< center */
+  (AbShape *)&invadey3,
+  {screenWidth/2+20, screenHeight/2+3}, /**< center */
   {0,0}, {0,0},    /* last & next pos */
   COLOR_BLACK,
   &layer5,
 };
-
 
 Layer layer3 = {/**< Layer with an orange circle */
   (AbShape *)&circle8,
@@ -95,10 +122,13 @@ typedef struct MovLayer_s {
 } MovLayer;
 
 /* initial value of {0,0} will be overwritten */
-MovLayer ml4 = { &layer4, {1,1}, 0};
-MovLayer ml3 = { &layer3, {1,1}, &ml4 }; /**< not all layers move */
-MovLayer ml1 = { &layer1, {1,2}, &ml3 };
-MovLayer ml0 = { &layer0, {2,1}, &ml1 };
+MovLayer ml7 = { &layer7, {1,1}, 0};
+MovLayer ml6 = { &layer6, {1,1}, &ml7};
+MovLayer ml5 = { &layer5, {2,2}, &ml6};
+MovLayer ml4 = { &layer4, {1,2}, &ml5};
+MovLayer ml3 = { &layer3, {1,1}, &ml4}; /**< not all layers move */
+MovLayer ml1 = { &layer1, {1,2}, &ml3};
+MovLayer ml0 = { &layer0, {2,1}, &ml1};
 
 void movLayerDraw(MovLayer *movLayers, Layer *layers)
 {
@@ -224,7 +254,7 @@ void wdt_c_handler()
     
     if (!(switches & BIT0)) {
       redrawScreen = 1;
-      drawString5x7(15,5,"Space Invaders",COLOR_BLACK, COLOR_WHITE);
+      drawString8x12(20,3,"INVADERS!",COLOR_BLACK, COLOR_WHITE);
       buzzer_set_period(475);
       layer4.color = COLOR_BLACK;
       layer0.color = COLOR_BLACK;
@@ -253,6 +283,9 @@ void wdt_c_handler()
       redrawScreen = 1;
       buzzer_set_period(0);
       //change color here
+      layer7.color = COLOR_GREEN;
+      layer6.color = COLOR_GREEN;
+      layer5.color = COLOR_GREEN;
       layer4.color = COLOR_BLACK;
       layer0.color = COLOR_BLACK;
       layer1.color = COLOR_BLACK;
