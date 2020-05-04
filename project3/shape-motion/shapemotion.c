@@ -19,8 +19,8 @@
 #define GREEN_LED BIT6
 
 
+/** OBJECTS */
 AbRect rect10 = {abRectGetBounds, abRectCheck, {10,10}}; /**< 10x10 rectangle */
-AbRArrow rightArrow = {abRArrowGetBounds, abRArrowCheck, 30};
 AbSpaceInvadey invadey = {abSpaceInvadeyGetBounds, abSpaceInvadeyCheck};
 AbSpaceInvadey invadey2 = {abSpaceInvadeyGetBounds, abSpaceInvadeyCheck};
 AbSpaceInvadey invadey3 = {abSpaceInvadeyGetBounds, abSpaceInvadeyCheck};
@@ -36,48 +36,48 @@ AbRectOutline fieldOutline = {/* playing field */
 
 
 Layer layer8 = {
-  (AbShape *)&rect10,
-  {(screenWidth/2)+10, (screenHeight/2)+5}, /**< bit below & right of center */
+  (AbShape *)&rect10, /** Layer with a pink rectangle */
+  {(screenWidth/2)+10, (screenHeight/2)+5}, 
   {0,0}, {0,0},    /* last & next pos */
   COLOR_PINK,
   0
 };
 
-Layer layer7 = {/**< Layer with a red square */
+Layer layer7 = {/**< Layer with a space invader */
   (AbShape *)&invadey6,
-  {screenWidth/2+20, screenHeight/2+3}, /**< center */
+  {screenWidth/2+20, screenHeight/2+3}, 
   {0,0}, {0,0},    /* last & next pos */
   COLOR_BLACK,
   &layer8,
 };
 
-Layer layer6 = {/**< Layer with a red square */
+Layer layer6 = {/**< Layer with a space invader */
   (AbShape *)&invadey5,
-  {screenWidth/2+10, screenHeight/2+30}, /**< center */
+  {screenWidth/2+10, screenHeight/2+30}, 
   {0,0}, {0,0},    /* last & next pos */
   COLOR_BLACK,
   &layer7,
 };
 
-Layer layer5 = {/**< Layer with a red square */
+Layer layer5 = {/**< Layer with a space invader */
   (AbShape *)&invadey4,
-  {screenWidth/2+0, screenHeight/2+13}, /**< center */
+  {screenWidth/2+0, screenHeight/2+13}, 
   {0,0}, {0,0},    /* last & next pos */
   COLOR_BLACK,
   &layer6,
 };
 
-Layer layer4 = {/**< Layer with a red square */
+Layer layer4 = {/**< Layer with a space invader */
   (AbShape *)&invadey3,
-  {screenWidth/2+20, screenHeight/2+3}, /**< center */
+  {screenWidth/2+20, screenHeight/2+3}, 
   {0,0}, {0,0},    /* last & next pos */
   COLOR_BLACK,
   &layer5,
 };
 
-Layer layer3 = {/**< Layer with an orange circle */
+Layer layer3 = {/**< Layer with a circle */
   (AbShape *)&circle8,
-  {(screenWidth/2)+10, (screenHeight/2)+5}, /**< bit below & right of center */
+  {(screenWidth/2)+10, (screenHeight/2)+5}, 
   {0,0}, {0,0},    /* last & next pos */
   COLOR_RED,
   &layer4,
@@ -93,7 +93,7 @@ Layer fieldLayer = {/* playing field as a layer */
 };
 
 
-Layer layer1 = {/**< Layer with a red square */
+Layer layer1 = {/**< Layer with a space invader */
   (AbShape *)&invadey,
   {screenWidth/2, screenHeight/2}, /**< center */
   {0,0}, {0,0},    /* last & next pos */
@@ -102,9 +102,9 @@ Layer layer1 = {/**< Layer with a red square */
 };
 
 
-Layer layer0 = {/**< Layer with an orange circle */
+Layer layer0 = {/**< Layer with a space invader */
   (AbShape *)&invadey2,
-  {(screenWidth/2)+10, (screenHeight/2)+5}, /**< bit below & right of center */
+  {(screenWidth/2)+10, (screenHeight/2)+5}, 
   {0,0}, {0,0},    /* last & next pos */
   COLOR_BLACK,
   &layer1,
@@ -121,12 +121,12 @@ typedef struct MovLayer_s {
   struct MovLayer_s *next;
 } MovLayer;
 
-/* initial value of {0,0} will be overwritten */
+/* Layers that will move / initial value of {0,0} will be overwritten */
 MovLayer ml7 = { &layer7, {1,1}, 0};
 MovLayer ml6 = { &layer6, {1,1}, &ml7};
 MovLayer ml5 = { &layer5, {2,2}, &ml6};
 MovLayer ml4 = { &layer4, {1,2}, &ml5};
-MovLayer ml3 = { &layer3, {1,1}, &ml4}; /**< not all layers move */
+MovLayer ml3 = { &layer3, {1,1}, &ml4}; 
 MovLayer ml1 = { &layer1, {1,2}, &ml3};
 MovLayer ml0 = { &layer0, {2,1}, &ml1};
 
@@ -251,7 +251,8 @@ void wdt_c_handler()
     buzzer_set_period(0);
     
     mlAdvance(&ml0, &fieldFence);
-    
+
+    /** if switch 1 is pressed print Invaders and move objects */
     if (!(switches & BIT0)) {
       redrawScreen = 1;
       drawString8x12(20,3,"INVADERS!",COLOR_BLACK, COLOR_WHITE);
@@ -260,7 +261,8 @@ void wdt_c_handler()
       layer0.color = COLOR_BLACK;
       layer1.color = COLOR_BLACK;
     }
-    
+
+    /** if switch 2 is pressed move objects and change color */
     if (!(switches & BIT1)) {
       redrawScreen = 1;
       buzzer_set_period(1450);
@@ -269,26 +271,28 @@ void wdt_c_handler()
       layer0.color = COLOR_RED;
       layer1.color = COLOR_RED;
     }
-    
+
+    /** if switch 3 is pressed move objects and change color */
     if (!(switches & BIT2)) {
       redrawScreen = 1;
       buzzer_set_period(250);
       //change color here
+      layer7.color = COLOR_GREEN;
+      layer6.color = COLOR_GREEN;
+      layer5.color = COLOR_GREEN;
       layer4.color = COLOR_BLUE;
       layer0.color = COLOR_BLUE;
       layer1.color = COLOR_BLUE;
     }
-    
+
+    /** if switch 4 clear screen and display gameover */
     if (!(switches & BIT3)) {
-      redrawScreen = 1;
+      redrawScreen = 0;
+      clearScreen(COLOR_BLACK);
+      drawString8x12(20,40,"GAME OVER!",COLOR_RED, COLOR_BLACK);
+      drawString5x7(20,60,"Continue? Y/N",COLOR_WHITE, COLOR_BLACK);
       buzzer_set_period(0);
-      //change color here
-      layer7.color = COLOR_GREEN;
-      layer6.color = COLOR_GREEN;
-      layer5.color = COLOR_GREEN;
-      layer4.color = COLOR_BLACK;
-      layer0.color = COLOR_BLACK;
-      layer1.color = COLOR_BLACK;
+
     }  
     count = 0;
   }
